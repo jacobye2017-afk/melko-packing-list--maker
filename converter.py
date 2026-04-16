@@ -72,19 +72,22 @@ FONT_NAME = "微软雅黑"
 
 # 19-column widths
 COLUMN_WIDTHS = {
-    "A": 6.0,   "B": 20.0,  "C": 16.5,  "D": 10.66,
+    "A": 6.0,   "B": 33.0,  "C": 16.5,  "D": 10.66,
     "E": 10.0,  "F": 12.0,  "G": 12.0,  "H": 12.0,
-    "I": 22.0,  "J": 17.5,  "K": 28.0,  "L": 17.33,
+    "I": 22.0,  "J": 17.5,  "K": 29.5,  "L": 17.33,
     "M": 18.0,  "N": 12.0,  "O": 14.0,  "P": 16.0,
     "Q": 10.0,  "R": 22.0,
 }
+
+# Methods that should NOT merge FBA CODE cells (keep each row independent)
+NO_MERGE_METHODS = {"HOLD", "RELABEL", "PICK UP", "PICKUP"}
 EXTRAS_DEFAULT_WIDTH = 14.0
 
 ROW_H_TITLE = 30.0
 ROW_H_SUB   = 28.0
 ROW_H_HEAD  = 42.0
-ROW_H_DATA  = 32.0
-ROW_H_ADDR  = 46.0
+ROW_H_DATA  = 30.0
+ROW_H_ADDR  = 40.0
 
 # Target headers (row 3)
 HEADERS = [
@@ -646,15 +649,21 @@ def _write_data_rows(ws: Worksheet, transformed, sorted_source, extras_headers):
 
 
 def _merge_consecutive_same(ws, transformed, start_row, col, key):
+    """Merge consecutive rows in `col` that have the same value in `key`.
+    Skips merging for HOLD/RELABEL/PICK UP rows (each keeps independent FBA CODE)."""
     i = 0
     n = len(transformed)
     while i < n:
         val = transformed[i][key]
-        if not val:
+        method = transformed[i].get("method", "")
+        # Skip rows whose method is in NO_MERGE_METHODS
+        if not val or method in NO_MERGE_METHODS:
             i += 1
             continue
         j = i + 1
-        while j < n and transformed[j][key] == val:
+        while (j < n
+               and transformed[j][key] == val
+               and transformed[j].get("method", "") not in NO_MERGE_METHODS):
             j += 1
         if j - i >= 2:
             for k in range(i + 1, j):
