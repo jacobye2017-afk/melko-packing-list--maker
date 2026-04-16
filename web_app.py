@@ -15,284 +15,195 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max
 
 HTML = r"""
 <!DOCTYPE html>
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MELKO Packing List Maker</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#1039b9","primary-container":"#3454d1","on-primary":"#ffffff","on-primary-container":"#d4d9ff","secondary":"#4e6073","secondary-container":"#cfe2f9","on-secondary":"#ffffff","tertiary":"#684000","tertiary-container":"#895500","on-tertiary-container":"#ffd4a5","background":"#f7f9ff","surface":"#f7f9ff","surface-container":"#e3efff","surface-container-low":"#edf4ff","surface-container-lowest":"#ffffff","surface-container-high":"#d9eaff","on-surface":"#091d2e","on-surface-variant":"#444654","outline":"#747685","outline-variant":"#c4c5d6","primary-fixed":"#dde1ff","error":"#ba1a1a","error-container":"#ffdad6"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},fontFamily:{headline:["Inter","sans-serif"],body:["Inter","sans-serif"]}}}}
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
-.kinetic-gradient{background:linear-gradient(135deg,#1039b9 0%,#3454d1 100%)}
-.ghost-border{border:2px dashed rgba(196,197,214,0.5)}
-.ghost-border.drag-over{border-color:#3454d1;background:rgba(52,84,209,0.04)}
-.upload-zone input[type=file]{display:none}
-.status-msg{margin-top:12px;padding:10px 16px;border-radius:8px;font-size:13px;display:none}
-.status-msg.success{display:block;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-.status-msg.error{display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-.status-msg.loading{display:block;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#f7f9ff;color:#091d2e;min-height:100vh}
+.header{background:linear-gradient(135deg,#1039b9,#3454d1);padding:24px 0;text-align:center;box-shadow:0 4px 20px rgba(16,57,185,0.15)}
+.header-inner{max-width:900px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:center;gap:16px}
+.header img{height:56px}
+.header h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.header p{font-size:12px;color:rgba(255,255,255,0.7)}
+.container{max-width:900px;margin:32px auto;padding:0 20px;display:grid;grid-template-columns:1fr 300px;gap:24px}
+@media(max-width:768px){.container{grid-template-columns:1fr}}
+.main{display:flex;flex-direction:column;gap:20px}
+.card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,0.04);border:1px solid rgba(196,197,214,0.2)}
+.card h2{font-size:18px;font-weight:700;margin-bottom:4px;color:#091d2e}
+.card .step-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:10px}
+.step-blue{background:#dde1ff;color:#1039b9}
+.step-check{background:#dcfce7;color:#166534}
+.step-green{background:#d1fae5;color:#065f46}
+.card .desc{font-size:13px;color:#444654;margin-bottom:16px}
+.upload-zone{border:2px dashed #c4c5d6;border-radius:14px;padding:40px 20px;text-align:center;cursor:pointer;transition:all 0.25s;background:#f7f9ff}
+.upload-zone:hover,.upload-zone.drag-over{border-color:#3454d1;background:#eef1ff;box-shadow:0 0 0 4px rgba(52,84,209,0.08)}
+.upload-zone input{display:none}
+.upload-zone .icon{font-size:44px;margin-bottom:8px}
+.upload-zone .text{font-size:14px;color:#444654;font-weight:500}
+.upload-zone .text b{color:#3454d1}
+.upload-zone .sub{font-size:11px;color:#747685;margin-top:4px}
+.upload-zone .browse{display:inline-block;margin-top:14px;padding:8px 22px;background:#fff;border:1.5px solid #c4c5d6;border-radius:10px;font-size:13px;font-weight:600;color:#1039b9;cursor:pointer;transition:all 0.2s}
+.upload-zone .browse:hover{background:#eef1ff;border-color:#3454d1}
+.fname{font-size:12px;color:#3454d1;margin-top:8px;font-weight:500;word-break:break-all}
+.review-box{display:flex;gap:12px;align-items:flex-start;padding:20px;background:#f7f9ff;border-radius:12px;border:1px solid #dde1ff}
+.review-box .r-icon{font-size:28px;flex-shrink:0}
+.review-box .r-title{font-size:14px;font-weight:600}
+.review-box .r-desc{font-size:12px;color:#444654;margin-top:2px}
+.status{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:13px;display:none}
+.status.success{display:block;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.status.error{display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.status.loading{display:block;background:#eef1ff;color:#1039b9;border:1px solid #bfdbfe}
+.sidebar{display:flex;flex-direction:column;gap:20px}
+.feat-card{background:linear-gradient(135deg,#1039b9,#3454d1);color:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 24px rgba(16,57,185,0.15)}
+.feat-card h3{font-size:16px;font-weight:700;margin-bottom:12px}
+.feat-card .feat-item{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.feat-card .feat-item .dot{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px}
+.feat-card .feat-item .ft{font-size:12px;font-weight:600}
+.feat-card .feat-item .fd{font-size:11px;opacity:0.7}
+.bol-card{background:#fff;border-radius:16px;padding:24px;border:1px solid rgba(196,197,214,0.2)}
+.bol-card h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#4e6073;margin-bottom:14px}
+.bol-card li{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.bol-card .num{width:22px;height:22px;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#64748b;flex-shrink:0}
+.bol-card .bt{font-size:12px;color:#444654}
+.bol-card .bt strong{color:#091d2e}
+.footer{text-align:center;padding:24px;font-size:11px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;font-weight:600}
 </style>
 </head>
-<body class="bg-[#f7f9ff] font-body text-[#091d2e] selection:bg-blue-200">
-<!-- Header -->
-<header class="sticky top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-sm">
-<div class="flex justify-between items-center h-16 px-6 lg:px-12">
-<div class="flex items-center gap-8">
-<img src="/static/logo.png" alt="MELKO" class="h-10"/>
-<nav class="hidden md:flex gap-6 items-center">
-<a class="text-blue-700 font-bold border-b-2 border-blue-600" href="#">Dashboard</a>
-<a class="text-slate-500 hover:text-blue-600 transition-colors" href="#">History</a>
-<a class="text-slate-500 hover:text-blue-600 transition-colors" href="#">Settings</a>
-</nav>
-</div>
-<div class="flex items-center gap-4">
-<button class="material-symbols-outlined p-2 rounded-full hover:bg-blue-50/50 text-slate-900">help</button>
-<button class="material-symbols-outlined p-2 rounded-full hover:bg-blue-50/50 text-slate-900">account_circle</button>
-</div>
-</div>
-</header>
-
-<div class="flex">
-<!-- Sidebar -->
-<aside class="h-[calc(100vh-64px)] w-64 fixed left-0 top-16 bg-slate-50 flex-col py-8 gap-4 hidden lg:flex">
-<div class="px-8 mb-4">
-<h2 class="text-lg font-bold text-slate-900">Packing Tool</h2>
-<p class="text-[10px] uppercase font-bold tracking-widest text-slate-400">v2.1 Kinetic</p>
-</div>
-<nav class="flex flex-col gap-2">
-<div id="nav1" class="flex items-center gap-3 bg-white text-blue-700 rounded-l-full py-3 px-4 shadow-sm ml-4 cursor-pointer transition-all">
-<span class="material-symbols-outlined">upload_file</span>
-<span class="text-[10px] uppercase font-bold tracking-widest">1. Generate List</span>
-</div>
-<div id="nav2" class="flex items-center gap-3 text-slate-500 py-3 px-4 ml-4 cursor-pointer hover:text-blue-600 transition-all">
-<span class="material-symbols-outlined">fact_check</span>
-<span class="text-[10px] uppercase font-bold tracking-widest">2. Review Data</span>
-</div>
-<div id="nav3" class="flex items-center gap-3 text-slate-500 py-3 px-4 ml-4 cursor-pointer hover:text-blue-600 transition-all">
-<span class="material-symbols-outlined">description</span>
-<span class="text-[10px] uppercase font-bold tracking-widest">3. Export BOL</span>
-</div>
-</nav>
-</aside>
-
-<!-- Main Content -->
-<main class="lg:ml-64 flex-1 min-h-screen p-6 lg:p-12">
-<div class="max-w-5xl mx-auto space-y-12">
-<!-- Intro -->
-<div class="space-y-2">
-<h1 class="text-4xl lg:text-5xl font-black tracking-tight">Packing List Maker</h1>
-<p class="text-[#444654] max-w-2xl leading-relaxed">上传客户的预报表/派送计划 Excel，自动生成标准 Packing List 和 BOL 文件。</p>
-</div>
-
-<div class="grid grid-cols-1 xl:grid-cols-3 gap-12">
-<div class="xl:col-span-2 space-y-16">
-
-<!-- Step 1 -->
-<section class="relative pl-12">
-<div class="absolute left-4 top-0 bottom-0 w-1 bg-[#dde1ff] rounded-full">
-<div class="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#684000] border-4 border-white"></div>
-</div>
-<div class="space-y-6">
-<header>
-<h2 class="text-2xl font-bold tracking-tight">Step 1: 生成 Packing List</h2>
-<p class="text-[#444654] text-sm">上传客户的 Excel 源文件 (.xlsx / .xls)</p>
-</header>
-<div id="zone1" class="upload-zone group relative bg-[#edf4ff] rounded-xl p-12 ghost-border transition-all hover:border-[#3454d1] cursor-pointer" onclick="document.getElementById('file1').click()">
-<input type="file" id="file1" accept=".xlsx,.xls" onchange="handleStep1(this)"/>
-<div class="flex flex-col items-center text-center space-y-4">
-<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm">
-<span class="material-symbols-outlined text-[#3454d1] text-3xl">upload_file</span>
-</div>
+<body>
+<header class="header">
+<div class="header-inner">
+<img src="/static/logo.png" alt="MELKO">
 <div>
-<p class="font-bold">拖拽客户 Excel 文件到此处</p>
-<p class="text-[#444654] text-xs">支持 .XLSX, .XLS 格式</p>
-</div>
-<button class="px-6 py-2 bg-white border border-[#c4c5d6] text-[#1039b9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors" onclick="event.stopPropagation();document.getElementById('file1').click()">
-浏览文件
-</button>
-<p class="text-xs text-[#3454d1] font-medium" id="fname1"></p>
+<h1>Packing List Maker</h1>
+<p>Packing List & BOL Generator</p>
 </div>
 </div>
-<div class="status-msg" id="status1"></div>
+</header>
+
+<div class="container">
+<div class="main">
+<!-- Step 1 -->
+<div class="card">
+<span class="step-badge step-blue">Step 1</span>
+<h2>生成 Packing List</h2>
+<p class="desc">上传客户的 Excel 源文件 (.xlsx / .xls)，自动生成标准派送方案单</p>
+<div class="upload-zone" id="zone1" onclick="document.getElementById('file1').click()">
+<input type="file" id="file1" accept=".xlsx,.xls" onchange="handleStep1(this)">
+<div class="icon">📄</div>
+<div class="text">拖拽客户 Excel 文件到此处 或 <b>点击选择</b></div>
+<div class="sub">支持 .XLSX / .XLS 格式</div>
+<div class="browse" onclick="event.stopPropagation();document.getElementById('file1').click()">浏览文件</div>
+<div class="fname" id="fname1"></div>
 </div>
-</section>
+<div class="status" id="status1"></div>
+</div>
 
 <!-- Step 2 -->
-<section class="relative pl-12">
-<div class="absolute left-4 top-0 bottom-0 w-1 bg-[#dde1ff] rounded-full">
-<div class="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#dde1ff] border-4 border-white"></div>
-</div>
-<div class="space-y-6">
-<header>
-<h2 class="text-2xl font-bold tracking-tight text-slate-400">Step 2: 检查 Packing List</h2>
-</header>
-<div class="bg-white rounded-xl p-6 border border-slate-200/50 flex items-start gap-4">
-<span class="material-symbols-outlined text-[#4e6073]">info</span>
+<div class="card">
+<span class="step-badge step-check">Step 2</span>
+<h2>检查 Packing List</h2>
+<div class="review-box">
+<div class="r-icon">📋</div>
 <div>
-<p class="text-sm font-semibold">打开下载的 Packing List</p>
-<p class="text-sm text-[#444654]">人工检查数据是否正确，修改后保存。然后进入 Step 3 上传修改好的文件。</p>
+<p class="r-title">打开下载的 Packing List</p>
+<p class="r-desc">人工检查数据是否正确（颜色、分组、件数等），修改后保存。然后进入 Step 3。</p>
 </div>
 </div>
 </div>
-</section>
 
 <!-- Step 3 -->
-<section class="relative pl-12">
-<div class="absolute left-4 top-0 h-4 w-1 bg-[#dde1ff] rounded-t-full">
-<div class="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#dde1ff] border-4 border-white"></div>
+<div class="card">
+<span class="step-badge step-green">Step 3</span>
+<h2>生成 BOL 文件</h2>
+<p class="desc">上传检查修改好的 Packing List，自动生成 BOL 文件包 (ZIP 下载)</p>
+<div class="upload-zone" id="zone2" onclick="document.getElementById('file2').click()">
+<input type="file" id="file2" accept=".xlsx" onchange="handleStep2(this)">
+<div class="icon">📦</div>
+<div class="text">拖拽修改好的 Packing List 到此处 或 <b>点击选择</b></div>
+<div class="sub">上传后自动生成 BOL 文件包</div>
+<div class="browse" onclick="event.stopPropagation();document.getElementById('file2').click()">浏览文件</div>
+<div class="fname" id="fname2"></div>
 </div>
-<div class="space-y-6">
-<header>
-<h2 class="text-2xl font-bold tracking-tight text-slate-400" id="step3title">Step 3: 生成 BOL 文件</h2>
-</header>
-<div id="zone2" class="upload-zone group relative bg-[#edf4ff] rounded-xl p-12 ghost-border transition-all hover:border-[#3454d1] cursor-pointer" onclick="document.getElementById('file2').click()">
-<input type="file" id="file2" accept=".xlsx" onchange="handleStep2(this)"/>
-<div class="flex flex-col items-center text-center space-y-4">
-<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm">
-<span class="material-symbols-outlined text-[#3454d1] text-3xl">inventory_2</span>
+<div class="status" id="status2"></div>
 </div>
-<div>
-<p class="font-bold">拖拽修改好的 Packing List 到此处</p>
-<p class="text-[#444654] text-xs">上传后自动生成 BOL 文件包 (ZIP 下载)</p>
-</div>
-<button class="px-6 py-2 bg-white border border-[#c4c5d6] text-[#1039b9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors" onclick="event.stopPropagation();document.getElementById('file2').click()">
-浏览文件
-</button>
-<p class="text-xs text-[#3454d1] font-medium" id="fname2"></p>
-</div>
-</div>
-<div class="status-msg" id="status2"></div>
-</div>
-</section>
-
 </div>
 
-<!-- Sidebar Instructions -->
-<aside class="space-y-8">
-<div class="bg-[#3454d1] text-white p-8 rounded-xl shadow-xl shadow-blue-500/10">
-<h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-<span class="material-symbols-outlined">auto_awesome</span>
-自动化功能
-</h3>
-<p class="text-sm leading-relaxed opacity-80 mb-6">系统自动识别客户 Excel 格式，转换重量单位，按派送方式分类着色。</p>
-<div class="space-y-4">
-<div class="flex gap-3">
-<span class="material-symbols-outlined text-amber-300">check_circle</span>
-<div class="text-xs"><p class="font-bold">KG → LBS 自动转换</p><p class="opacity-70">×2.2 自动计算 CTN/LBS 和总 LBS</p></div>
+<!-- Sidebar -->
+<div class="sidebar">
+<div class="feat-card">
+<h3>✨ 自动化功能</h3>
+<div class="feat-item"><div class="dot">✓</div><div><div class="ft">KG → LBS 自动转换</div><div class="fd">×2.2 自动计算 CTN/LBS 和总 LBS</div></div></div>
+<div class="feat-item"><div class="dot">✓</div><div><div class="ft">颜色自动标记</div><div class="fd">FEDEX紫 / UPS褐 / HOLD红 / FF黄</div></div></div>
+<div class="feat-item"><div class="dot">✓</div><div><div class="ft">仓库代码自动合并</div><div class="fd">FBA CODE 连续相同值合并单元格</div></div></div>
+<div class="feat-item"><div class="dot">✓</div><div><div class="ft">支持 .xls + .xlsx</div><div class="fd">兼容多种客户模板格式</div></div></div>
+<div class="feat-item"><div class="dot">✓</div><div><div class="ft">柜号自动识别</div><div class="fd">从文件名/表头自动提取柜号</div></div></div>
 </div>
-<div class="flex gap-3">
-<span class="material-symbols-outlined text-amber-300">check_circle</span>
-<div class="text-xs"><p class="font-bold">颜色自动标记</p><p class="opacity-70">FEDEX紫/UPS褐/HOLD红/FF黄</p></div>
-</div>
-<div class="flex gap-3">
-<span class="material-symbols-outlined text-amber-300">check_circle</span>
-<div class="text-xs"><p class="font-bold">仓库代码自动合并</p><p class="opacity-70">FBA CODE 连续相同值合并单元格</p></div>
-</div>
-<div class="flex gap-3">
-<span class="material-symbols-outlined text-amber-300">check_circle</span>
-<div class="text-xs"><p class="font-bold">支持 .xls + .xlsx</p><p class="opacity-70">兼容多种客户模板格式</p></div>
-</div>
-</div>
-</div>
-<div class="bg-white p-8 rounded-xl border border-slate-200/50 space-y-4">
-<h3 class="text-sm font-bold uppercase tracking-widest text-[#4e6073]">BOL 文件包含</h3>
-<ul class="space-y-4">
-<li class="flex items-start gap-3">
-<span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 shrink-0 mt-0.5">01</span>
-<p class="text-xs text-[#444654]"><strong>Packing List</strong> (A-M 13列精简版)</p>
-</li>
-<li class="flex items-start gap-3">
-<span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 shrink-0 mt-0.5">02</span>
-<p class="text-xs text-[#444654]"><strong>Hold List</strong> (仅 HOLD/RELABEL 行)</p>
-</li>
-<li class="flex items-start gap-3">
-<span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 shrink-0 mt-0.5">03</span>
-<p class="text-xs text-[#444654]"><strong>TRUCKING.docx</strong> (仓库板数/CBM 汇总)</p>
-</li>
-<li class="flex items-start gap-3">
-<span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 shrink-0 mt-0.5">04</span>
-<p class="text-xs text-[#444654]"><strong>柜号唛头.docx</strong> (柜号 + MELKO)</p>
-</li>
+<div class="bol-card">
+<h3>BOL 文件包含</h3>
+<ul style="list-style:none">
+<li><span class="num">01</span><span class="bt"><strong>Packing List</strong> (A-M 13列精简版)</span></li>
+<li><span class="num">02</span><span class="bt"><strong>Hold List</strong> (仅 HOLD/RELABEL 行)</span></li>
+<li><span class="num">03</span><span class="bt"><strong>TRUCKING.docx</strong> (仓库板数/CBM 汇总)</span></li>
+<li><span class="num">04</span><span class="bt"><strong>柜号唛头.docx</strong> (柜号 + MELKO)</span></li>
 </ul>
 </div>
-</aside>
 </div>
-</div>
-</main>
 </div>
 
-<!-- Footer -->
-<footer class="w-full py-6 mt-auto bg-slate-50 border-t border-slate-200/50">
-<div class="flex flex-col md:flex-row justify-between items-center px-12 gap-4">
-<p class="text-[10px] uppercase font-bold tracking-widest text-slate-400">&copy; 2026 MELKO Logistics</p>
-</div>
-</footer>
+<div class="footer">© 2026 MELKO Logistics</div>
 
 <script>
-// Drag-drop for both zones
 ['zone1','zone2'].forEach(id=>{
-const zone=document.getElementById(id);
-zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over')});
-zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
-zone.addEventListener('drop',e=>{
-e.preventDefault();zone.classList.remove('drag-over');
-const file=e.dataTransfer.files[0];if(!file)return;
-const input=zone.querySelector('input[type=file]');
-const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;
-input.dispatchEvent(new Event('change'));
+const z=document.getElementById(id);
+z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('drag-over')});
+z.addEventListener('dragleave',()=>z.classList.remove('drag-over'));
+z.addEventListener('drop',e=>{
+e.preventDefault();z.classList.remove('drag-over');
+const f=e.dataTransfer.files[0];if(!f)return;
+const inp=z.querySelector('input');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;
+inp.dispatchEvent(new Event('change'));
 });
 });
-
-function setStatus(id,type,msg){
-const el=document.getElementById(id);
-el.className='status-msg '+type;el.textContent=msg;
-}
-
-async function handleStep1(input){
-const file=input.files[0];if(!file)return;
-document.getElementById('fname1').textContent=file.name;
-setStatus('status1','loading','正在处理...');
-const form=new FormData();form.append('file',file);
+function setStatus(id,t,m){const e=document.getElementById(id);e.className='status '+t;e.textContent=m}
+async function handleStep1(inp){
+const f=inp.files[0];if(!f)return;
+document.getElementById('fname1').textContent=f.name;
+setStatus('status1','loading','⏳ 正在处理...');
+const fd=new FormData();fd.append('file',f);
 try{
-const resp=await fetch('/api/step1',{method:'POST',body:form});
-if(!resp.ok){const err=await resp.json();throw new Error(err.error||'Unknown error')}
-const blob=await resp.blob();
-const cd=resp.headers.get('Content-Disposition')||'';
-const match=cd.match(/filename="?([^"]+)"?/);
-const fname=match?match[1]:'packing_list.xlsx';
-const url=URL.createObjectURL(blob);
-const a=document.createElement('a');a.href=url;a.download=decodeURIComponent(fname);a.click();
-URL.revokeObjectURL(url);
-setStatus('status1','success','✅ 已生成: '+decodeURIComponent(fname)+' — 已自动下载，请检查后进入 Step 3');
+const r=await fetch('/api/step1',{method:'POST',body:fd});
+if(!r.ok){const e=await r.json();throw new Error(e.error||'Error')}
+const b=await r.blob(),cd=r.headers.get('Content-Disposition')||'',
+mt=cd.match(/filename="?([^"]+)"?/),fn=mt?mt[1]:'packing_list.xlsx';
+const u=URL.createObjectURL(b),a=document.createElement('a');
+a.href=u;a.download=decodeURIComponent(fn);a.click();URL.revokeObjectURL(u);
+setStatus('status1','success','✅ 已生成: '+decodeURIComponent(fn)+' — 请检查后进入 Step 3');
 }catch(e){setStatus('status1','error','❌ '+e.message)}
-input.value='';
+inp.value='';
 }
-
-async function handleStep2(input){
-const file=input.files[0];if(!file)return;
-document.getElementById('fname2').textContent=file.name;
-setStatus('status2','loading','正在生成 BOL 文件包...');
-const form=new FormData();form.append('file',file);
+async function handleStep2(inp){
+const f=inp.files[0];if(!f)return;
+document.getElementById('fname2').textContent=f.name;
+setStatus('status2','loading','⏳ 正在生成 BOL 文件包...');
+const fd=new FormData();fd.append('file',f);
 try{
-const resp=await fetch('/api/step2',{method:'POST',body:form});
-if(!resp.ok){const err=await resp.json();throw new Error(err.error||'Unknown error')}
-const blob=await resp.blob();
-const cd=resp.headers.get('Content-Disposition')||'';
-const match=cd.match(/filename="?([^"]+)"?/);
-const fname=match?match[1]:'BOL.zip';
-const url=URL.createObjectURL(blob);
-const a=document.createElement('a');a.href=url;a.download=decodeURIComponent(fname);a.click();
-URL.revokeObjectURL(url);
-setStatus('status2','success','✅ BOL 文件包已下载: '+decodeURIComponent(fname));
+const r=await fetch('/api/step2',{method:'POST',body:fd});
+if(!r.ok){const e=await r.json();throw new Error(e.error||'Error')}
+const b=await r.blob(),cd=r.headers.get('Content-Disposition')||'',
+mt=cd.match(/filename="?([^"]+)"?/),fn=mt?mt[1]:'BOL.zip';
+const u=URL.createObjectURL(b),a=document.createElement('a');
+a.href=u;a.download=decodeURIComponent(fn);a.click();URL.revokeObjectURL(u);
+setStatus('status2','success','✅ BOL 文件包已下载: '+decodeURIComponent(fn));
 }catch(e){setStatus('status2','error','❌ '+e.message)}
-input.value='';
+inp.value='';
 }
 </script>
-</body></html>
+</body>
+</html>
 """
 
 
