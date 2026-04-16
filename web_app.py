@@ -20,64 +20,62 @@ HTML = r"""
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MELKO Packing List Maker</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',system-ui,sans-serif;background:#f0f4ff;color:#091d2e;min-height:100vh}
-/* Header */
-.header{background:linear-gradient(135deg,#1039b9,#3454d1);padding:28px 0;text-align:center}
-.header-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:center;gap:20px}
-.header img{height:64px}
-.header-text h1{font-size:28px;font-weight:900;color:#fff;letter-spacing:-0.5px}
-.header-text p{font-size:14px;color:rgba(255,255,255,0.7);margin-top:2px}
-/* Title */
-.page-title{text-align:center;padding:36px 20px 8px;font-size:32px;font-weight:900;color:#1039b9}
-.page-sub{text-align:center;font-size:16px;color:#444654;margin-bottom:32px}
-/* Steps Row */
-.steps-row{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+body{font-family:'Noto Sans SC',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:#f5f5f7;color:#1d1d1f;min-height:100vh;-webkit-font-smoothing:antialiased;background-image:url('/static/bg.jpg');background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.50);z-index:0;pointer-events:none}
+body>*{position:relative;z-index:1}
+.header{background:#fbfbfd;border-bottom:1px solid #d2d2d7;padding:14px 0}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:16px}
+.header img{height:60px}
+.header-text h1{font-size:24px;font-weight:600;color:#1d1d1f}
+.header-text p{font-size:14px;color:#86868b;margin-top:2px}
+.page-hero{max-width:1100px;margin:0 auto;padding:52px 24px 16px;text-align:center}
+.page-hero h2{font-size:40px;font-weight:600;color:#1d1d1f;letter-spacing:-0.5px}
+.page-hero p{font-size:17px;color:#86868b;margin-top:8px}
+.steps-row{max-width:1100px;margin:32px auto 0;padding:0 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
 @media(max-width:900px){.steps-row{grid-template-columns:1fr}}
-/* Step Card */
-.step-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.06);display:flex;flex-direction:column}
-.step-header{padding:16px 24px;font-size:17px;font-weight:800;color:#fff;text-align:center}
-.step-header.blue{background:#3b82f6}
-.step-header.orange{background:#f59e0b}
-.step-header.green{background:#10b981}
-.step-body{padding:28px 24px;flex:1;display:flex;flex-direction:column;align-items:center;text-align:center}
-.step-body .icon{font-size:52px;margin-bottom:12px}
-.step-body .desc{font-size:15px;color:#444654;line-height:1.6;margin-bottom:16px}
-/* Upload zone */
-.upload-zone{width:100%;border:2.5px dashed #cbd5e1;border-radius:16px;padding:28px 16px;cursor:pointer;transition:all 0.25s;background:#f8faff}
-.upload-zone:hover,.upload-zone.drag-over{border-color:#3454d1;background:#eef1ff;box-shadow:0 0 0 4px rgba(52,84,209,0.08)}
+.step-card{background:#fbfbfd;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s}
+.step-card:hover{transform:translateY(-3px)}
+.step-top{padding:20px 24px;display:flex;align-items:center;gap:12px}
+.step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:#fff;flex-shrink:0}
+.step-num.blue{background:#3454d1}
+.step-num.amber{background:#ff9500}
+.step-num.green{background:#34c759}
+.step-top h3{font-size:17px;font-weight:600;color:#1d1d1f}
+.step-body{padding:0 24px 28px;flex:1;display:flex;flex-direction:column;align-items:center;text-align:center}
+.step-body .desc{font-size:14px;color:#86868b;line-height:1.6;margin-bottom:20px}
+.upload-zone{width:100%;border:1.5px dashed #d2d2d7;border-radius:12px;padding:28px 16px;cursor:pointer;transition:all 0.2s;background:#fff}
+.upload-zone:hover,.upload-zone.drag-over{border-color:#3454d1;background:#f5f8ff}
 .upload-zone input{display:none}
-.upload-zone .uz-icon{font-size:40px;margin-bottom:6px}
-.upload-zone .uz-text{font-size:14px;font-weight:600;color:#334155}
-.upload-zone .uz-sub{font-size:12px;color:#94a3b8;margin-top:2px}
-.upload-zone .browse{display:inline-block;margin-top:12px;padding:8px 24px;background:#3454d1;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.2s}
-.upload-zone .browse:hover{background:#1039b9}
-.fname{font-size:12px;color:#3454d1;margin-top:6px;font-weight:600;word-break:break-all}
-.status{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:500;display:none;text-align:left;width:100%}
-.status.success{display:block;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-.status.error{display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-.status.loading{display:block;background:#eef1ff;color:#1039b9;border:1px solid #bfdbfe}
-/* Review card middle */
-.review-content{display:flex;flex-direction:column;align-items:center;gap:16px;flex:1;justify-content:center}
-.review-content .r-icon{font-size:48px}
-.review-content .r-text{font-size:15px;color:#444654;line-height:1.6}
-.review-content .r-text strong{color:#091d2e}
-/* Features bar */
-.features-bar{max-width:1200px;margin:32px auto;padding:0 20px}
-.features-inner{background:linear-gradient(135deg,#1e3a8a,#3454d1);border-radius:20px;padding:28px 36px;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:center}
-.features-inner h3{width:100%;text-align:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
-.feat-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:10px 18px;border-radius:12px}
-.feat-item .fi{font-size:24px}
-.feat-item .ft{font-size:14px;font-weight:700;color:#fff}
-/* BOL info */
-.bol-bar{max-width:1200px;margin:0 auto 32px;padding:0 20px}
-.bol-inner{background:#fff;border-radius:20px;padding:24px 36px;box-shadow:0 2px 12px rgba(0,0,0,0.04);display:flex;flex-wrap:wrap;gap:20px;justify-content:center;align-items:center}
-.bol-inner h3{width:100%;text-align:center;font-size:16px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:2px}
-.bol-item{font-size:14px;color:#334155;font-weight:500;background:#f1f5f9;padding:8px 16px;border-radius:10px}
-.bol-item strong{color:#1039b9}
-.footer{text-align:center;padding:24px;font-size:12px;color:#94a3b8;font-weight:600}
+.upload-zone .uz-icon{font-size:32px;margin-bottom:6px}
+.upload-zone .uz-text{font-size:14px;font-weight:500;color:#1d1d1f}
+.upload-zone .uz-sub{font-size:12px;color:#86868b;margin-top:3px}
+.upload-zone .browse{display:inline-block;margin-top:14px;padding:9px 22px;background:#3454d1;color:#fff;border:none;border-radius:980px;font-size:14px;font-weight:400;cursor:pointer;transition:background 0.15s}
+.upload-zone .browse:hover{background:#2840a0}
+.fname{font-size:12px;color:#3454d1;margin-top:8px;font-weight:500;word-break:break-all}
+.status{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:13px;display:none;text-align:left;width:100%}
+.status.success{display:block;background:#f0faf0;color:#248a3d}
+.status.error{display:block;background:#fff0f0;color:#d70015}
+.status.loading{display:block;background:#f5f8ff;color:#3454d1}
+.review-content{display:flex;flex-direction:column;align-items:center;gap:12px;flex:1;justify-content:center;padding:8px 0}
+.review-content .r-icon{font-size:40px}
+.review-content .r-text{font-size:14px;color:#86868b;line-height:1.6}
+.review-content .r-text strong{color:#1d1d1f;font-weight:600}
+.review-content .r-hint{font-size:13px;color:#86868b;padding:8px 16px;background:#f5f5f7;border-radius:10px}
+.features-bar{max-width:1100px;margin:40px auto 0;padding:0 24px}
+.features-inner{background:#3454d1;border-radius:18px;padding:28px 32px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center}
+.features-inner h3{width:100%;text-align:center;font-size:17px;font-weight:600;color:#fff;margin-bottom:6px}
+.feat-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);padding:8px 16px;border-radius:980px}
+.feat-pill .fi{font-size:16px}
+.feat-pill .ft{font-size:13px;color:rgba(255,255,255,0.85)}
+.bol-bar{max-width:1100px;margin:16px auto 48px;padding:0 24px}
+.bol-inner{background:#fbfbfd;border-radius:18px;padding:20px 32px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
+.bol-inner h3{width:100%;text-align:center;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:#86868b;margin-bottom:2px}
+.bol-tag{font-size:13px;color:#1d1d1f;background:#fff;padding:7px 14px;border-radius:10px;border:1px solid #d2d2d7}
+.bol-tag strong{color:#3454d1}
+.footer{text-align:center;padding:28px;font-size:12px;color:#86868b}
 </style>
 </head>
 <body>
@@ -92,22 +90,27 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f4ff;color:#091d2e;m
 </div>
 </header>
 
-<h2 class="page-title">极速 3 步自动化流程</h2>
-<p class="page-sub">上传客户 Excel，自动生成标准装箱单和 BOL 文件</p>
+<!-- Hero -->
+<div class="page-hero">
+<h2>极速 3 步自动化流程</h2>
+<p>上传客户的预报表 Excel，自动生成标准 Packing List 和 BOL 文件包。</p>
+</div>
 
 <!-- 3 Steps Horizontal -->
 <div class="steps-row">
 <!-- Step 1 -->
 <div class="step-card">
-<div class="step-header blue">Step 1：上传源文件生成方案</div>
+<div class="step-top">
+<div class="step-num blue">1</div>
+<h3>上传源文件生成方案</h3>
+</div>
 <div class="step-body">
-<div class="icon">📄</div>
 <div class="desc">拖拽客户 Excel 文件，系统自动完成 KG/LBS 转换、颜色标记及仓库代码合并。</div>
 <div class="upload-zone" id="zone1" onclick="document.getElementById('file1').click()">
 <input type="file" id="file1" accept=".xlsx,.xls" onchange="handleStep1(this)">
-<div class="uz-icon">☁️</div>
-<div class="uz-text">拖拽文件到此处</div>
-<div class="uz-sub">支持 .XLSX / .XLS</div>
+<div class="uz-icon">📄</div>
+<div class="uz-text">拖拽客户 Excel 到此处</div>
+<div class="uz-sub">支持 .XLSX / .XLS 格式</div>
 <button class="browse" onclick="event.stopPropagation();document.getElementById('file1').click()">浏览文件</button>
 <div class="fname" id="fname1"></div>
 </div>
@@ -117,28 +120,32 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f4ff;color:#091d2e;m
 
 <!-- Step 2 -->
 <div class="step-card">
-<div class="step-header orange">Step 2：人工检查并保存</div>
+<div class="step-top">
+<div class="step-num amber">2</div>
+<h3>人工检查并保存</h3>
+</div>
 <div class="step-body">
 <div class="review-content">
 <div class="r-icon">🔍</div>
 <div class="r-text">打开生成的列表，<strong>核对颜色、分组及件数</strong>等关键数据，修改后本地保存。</div>
-<div style="font-size:48px;margin-top:8px">💾</div>
-<div style="font-size:13px;color:#94a3b8;font-weight:500">检查完毕后进入 Step 3</div>
+<div class="r-hint">💾 检查完毕后进入 Step 3</div>
 </div>
 </div>
 </div>
 
 <!-- Step 3 -->
 <div class="step-card">
-<div class="step-header green">Step 3：上传获取 BOL 文件包</div>
+<div class="step-top">
+<div class="step-num green">3</div>
+<h3>上传获取 BOL 文件包</h3>
+</div>
 <div class="step-body">
-<div class="icon">📦</div>
 <div class="desc">上传核对后的文件，系统自动生成包含装箱单、Hold单、汇总表及唛头的 ZIP 包。</div>
 <div class="upload-zone" id="zone2" onclick="document.getElementById('file2').click()">
 <input type="file" id="file2" accept=".xlsx" onchange="handleStep2(this)">
-<div class="uz-icon">☁️</div>
+<div class="uz-icon">📦</div>
 <div class="uz-text">拖拽 Packing List 到此处</div>
-<div class="uz-sub">自动生成 BOL 文件包</div>
+<div class="uz-sub">自动生成 BOL 文件包 (ZIP)</div>
 <button class="browse" onclick="event.stopPropagation();document.getElementById('file2').click()">浏览文件</button>
 <div class="fname" id="fname2"></div>
 </div>
@@ -151,11 +158,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f4ff;color:#091d2e;m
 <div class="features-bar">
 <div class="features-inner">
 <h3>自动化功能集成，告别手动纠错</h3>
-<div class="feat-item"><span class="fi">🚛</span><span class="ft">柜号自动识别</span></div>
-<div class="feat-item"><span class="fi">🏷️</span><span class="ft">FBA 代码连续值合并</span></div>
-<div class="feat-item"><span class="fi">🎨</span><span class="ft">物流专用颜色标记</span></div>
-<div class="feat-item"><span class="fi">⚖️</span><span class="ft">KG → LBS 自动换算</span></div>
-<div class="feat-item"><span class="fi">📋</span><span class="ft">支持 .xls + .xlsx</span></div>
+<div class="feat-pill"><span class="fi">🚛</span><span class="ft">柜号自动识别</span></div>
+<div class="feat-pill"><span class="fi">🏷️</span><span class="ft">FBA 代码连续值合并</span></div>
+<div class="feat-pill"><span class="fi">🎨</span><span class="ft">物流专用颜色标记</span></div>
+<div class="feat-pill"><span class="fi">⚖️</span><span class="ft">KG → LBS 自动换算</span></div>
+<div class="feat-pill"><span class="fi">📋</span><span class="ft">支持 .xls + .xlsx</span></div>
 </div>
 </div>
 
@@ -163,10 +170,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f4ff;color:#091d2e;m
 <div class="bol-bar">
 <div class="bol-inner">
 <h3>BOL 文件包含</h3>
-<div class="bol-item"><strong>01</strong> Packing List (A-M 13列)</div>
-<div class="bol-item"><strong>02</strong> Hold List (HOLD/RELABEL)</div>
-<div class="bol-item"><strong>03</strong> TRUCKING.docx (板数/CBM)</div>
-<div class="bol-item"><strong>04</strong> 柜号唛头.docx (柜号+MELKO)</div>
+<div class="bol-tag"><strong>01</strong> Packing List (A-M 13列)</div>
+<div class="bol-tag"><strong>02</strong> Hold List (HOLD/RELABEL)</div>
+<div class="bol-tag"><strong>03</strong> TRUCKING.docx (板数/CBM)</div>
+<div class="bol-tag"><strong>04</strong> 柜号唛头.docx (柜号+MELKO)</div>
 </div>
 </div>
 
