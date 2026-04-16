@@ -888,13 +888,127 @@ def build_bol_packing_list(transformed, container_no, out_path):
 
 
 def build_bol_hold_list(transformed, container_no, out_path):
-    """BOL hold list: only HOLD / RELABEL / PICK UP rows."""
+    """BOL hold list: only HOLD / RELABEL / PICK UP rows, with 备注 column included."""
     hold_methods = {"HOLD", "RELABEL", "PICK UP", "PICKUP"}
     filtered = [r for r in transformed if r["method"] in hold_methods]
     if not filtered:
         return None  # No hold data — skip file generation
-    _write_bol_excel(filtered, container_no, container_no, out_path)
+    _write_hold_list_excel(filtered, container_no, out_path)
     return out_path
+
+
+def _write_hold_list_excel(transformed, container_no, out_path):
+    """Hold list writer: A-M (standard BOL cols) + N (备注). 14 columns total."""
+    thin = _thin_border()
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "总表"
+
+    # 14 column widths (A-M same as BOL + N for 备注)
+    widths = dict(BOL_COL_WIDTHS)
+    widths["N"] = 25.0  # 备注
+    for col_letter, w in widths.items():
+        ws.column_dimensions[col_letter].width = w
+
+    # Row 1: title (merged A1:N1)
+    ws.merge_cells("A1:N1")
+    c = ws.cell(row=1, column=1, value=container_no)
+    c.font = Font(name=FONT_NAME, size=36, bold=True, color="000000")
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[1].height = 60
+
+    # Row 2: Container / ETD / ETA
+    ws.merge_cells("A2:B2")
+    ws.cell(row=2, column=1, value="Container NO(集装箱号）")
+    ws.merge_cells("C2:D2")
+    ws.cell(row=2, column=3, value=container_no)
+    ws.cell(row=2, column=5, value="ETD")
+    ws.merge_cells("F2:I2")
+    ws.cell(row=2, column=10, value="ETA")
+    ws.merge_cells("K2:N2")
+    ws.row_dimensions[2].height = 39
+    for col in range(1, 15):
+        cc = ws.cell(row=2, column=col)
+        cc.font = Font(name=FONT_NAME, size=16, bold=False, color="000000")
+        cc.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        cc.border = thin
+
+    # Row 3: 提柜/到仓/卸柜
+    ws.merge_cells("A3:B3")
+    ws.cell(row=3, column=1, value="提柜日期")
+    ws.merge_cells("C3:D3")
+    ws.cell(row=3, column=5, value="到仓日期")
+    ws.merge_cells("F3:I3")
+    ws.cell(row=3, column=10, value="卸柜日期")
+    ws.merge_cells("K3:N3")
+    ws.row_dimensions[3].height = 39
+    for col in range(1, 15):
+        cc = ws.cell(row=3, column=col)
+        cc.font = Font(name=FONT_NAME, size=16, bold=False, color="000000")
+        cc.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        cc.border = thin
+
+    # Row 4: headers (A-M + 备注)
+    headers = list(BOL_HEADERS) + ["备注"]
+    for col, h in enumerate(headers, start=1):
+        cc = ws.cell(row=4, column=col, value=h)
+        cc.font = Font(name=FONT_NAME, size=11, bold=True, color="000000")
+        cc.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        cc.fill = PatternFill("solid", fgColor=HEADER_FILL)
+        cc.border = thin
+    ws.row_dimensions[4].height = 48
+
+    # Data rows
+    start_row = 5
+    keys = list(BOL_KEY_ORDER) + ["remark"]
+    for i, r in enumerate(transformed):
+        row = start_row + i
+        for col_idx, key in enumerate(keys, start=1):
+            ws.cell(row=row, column=col_idx, value=r.get(key, ""))
+
+        fill_color = _method_fill(r["method"])
+        white = _is_white_font(r["method"])
+        font = Font(name=FONT_NAME, size=16, bold=True,
+                    color=("FFFFFF" if white else "000000"))
+        align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        fill = PatternFill("solid", fgColor=fill_color) if fill_color else None
+        long = (r.get("address") and ("\n" in r["address"] or len(r["address"]) > 40)) \
+            or (r.get("remark") and ("\n" in r["remark"] or len(r["remark"]) > 40))
+        for col in range(1, 15):
+            cc = ws.cell(row=row, column=col)
+            cc.font = font
+            cc.alignment = align
+            cc.border = thin
+            if fill:
+                cc.fill = fill
+        ws.row_dimensions[row].height = 49 if long else 40
+
+    # Number formats
+    for i in range(len(transformed)):
+        row = start_row + i
+        ws.cell(row=row, column=4).number_format = "0"
+        ws.cell(row=row, column=5).number_format = "0.000"
+        ws.cell(row=row, column=6).number_format = "0.00"
+        ws.cell(row=row, column=7).number_format = "0.000"
+        ws.cell(row=row, column=8).number_format = "0.000"
+
+    # TOTAL row
+    total_row = start_row + len(transformed)
+    ws.cell(row=total_row, column=3, value="TOTAL")
+    for ci, key in [(4, "ctns"), (5, "cbm"), (6, "kg"), (7, "ctn_lbs"), (8, "total_lbs")]:
+        s = round(sum(_to_num(r[key]) for r in transformed), 4)
+        ws.cell(row=total_row, column=ci, value=int(s) if s == int(s) else s)
+    red = Font(name=FONT_NAME, size=16, bold=True, color="FF0000")
+    align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    for col in range(1, 15):
+        cc = ws.cell(row=total_row, column=col)
+        cc.font = red
+        cc.alignment = align
+        cc.border = thin
+    ws.row_dimensions[total_row].height = 40
+
+    ws.freeze_panes = "A5"
+    wb.save(out_path)
 
 
 def build_bol_trucking(transformed, container_no, out_path):
@@ -1045,7 +1159,7 @@ def build_all(src_path: str, out_folder: str = None):
     ]
 
     # 1. Full packing list (19-col)
-    full_path = os.path.join(out_folder, f"{container_no} packing list.xlsx")
+    full_path = os.path.join(out_folder, f"ETA {container_no} packing list.xlsx")
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "总表"
@@ -1091,7 +1205,7 @@ def build_all(src_path: str, out_folder: str = None):
 def _default_output_path(src_path: str) -> str:
     container = _extract_container(src_path)
     folder = os.path.dirname(src_path)
-    return os.path.join(folder, f"{container} packing list.xlsx")
+    return os.path.join(folder, f"ETA {container} packing list.xlsx")
 
 
 def main():

@@ -271,7 +271,7 @@ def step1():
         ]
 
         import openpyxl
-        out_path = os.path.join(tmpdir, f"{container_no} packing list.xlsx")
+        out_path = os.path.join(tmpdir, f"ETA {container_no} packing list.xlsx")
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "\u603b\u8868"
@@ -286,7 +286,7 @@ def step1():
         return send_file(
             out_path,
             as_attachment=True,
-            download_name=f"{container_no} packing list.xlsx",
+            download_name=f"ETA {container_no} packing list.xlsx",
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         )
     except Exception as e:
