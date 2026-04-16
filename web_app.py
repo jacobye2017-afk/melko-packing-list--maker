@@ -13,201 +13,286 @@ import converter
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max
 
-HTML = """
+HTML = r"""
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MELKO Packing List Maker</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
-        .header { background: #2c3e50; color: white; padding: 20px 0; text-align: center; }
-        .header h1 { font-size: 24px; margin-bottom: 4px; }
-        .header p { font-size: 13px; color: #94a3b8; }
-        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
-        .card { background: white; border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .card h2 { font-size: 18px; color: #2c3e50; margin-bottom: 6px; }
-        .card .desc { font-size: 13px; color: #888; margin-bottom: 18px; }
-        .upload-zone { border: 2px dashed #cbd5e1; border-radius: 10px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafbfc; }
-        .upload-zone:hover, .upload-zone.drag-over { border-color: #3454D1; background: #eef2ff; }
-        .upload-zone input { display: none; }
-        .upload-zone .icon { font-size: 40px; margin-bottom: 10px; }
-        .upload-zone .text { font-size: 14px; color: #64748b; }
-        .upload-zone .text b { color: #3454D1; }
-        .btn { display: inline-block; padding: 12px 28px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .btn-blue { background: #3454D1; color: white; }
-        .btn-blue:hover { background: #2840A0; }
-        .btn-green { background: #27AE60; color: white; }
-        .btn-green:hover { background: #1E8449; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status { margin-top: 15px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
-        .status.success { display: block; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-        .status.error { display: block; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-        .status.loading { display: block; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
-        .steps { display: flex; gap: 8px; margin-bottom: 20px; }
-        .step-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .step-blue { background: #dbeafe; color: #1d4ed8; }
-        .step-green { background: #dcfce7; color: #166534; }
-        .file-name { font-size: 13px; color: #3454D1; margin-top: 8px; font-weight: 500; word-break: break-all; }
-        .instructions { font-size: 13px; color: #64748b; line-height: 1.8; }
-        .instructions li { margin-bottom: 4px; }
-        .footer { text-align: center; padding: 20px; font-size: 12px; color: #94a3b8; }
-    </style>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MELKO Packing List Maker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#1039b9","primary-container":"#3454d1","on-primary":"#ffffff","on-primary-container":"#d4d9ff","secondary":"#4e6073","secondary-container":"#cfe2f9","on-secondary":"#ffffff","tertiary":"#684000","tertiary-container":"#895500","on-tertiary-container":"#ffd4a5","background":"#f7f9ff","surface":"#f7f9ff","surface-container":"#e3efff","surface-container-low":"#edf4ff","surface-container-lowest":"#ffffff","surface-container-high":"#d9eaff","on-surface":"#091d2e","on-surface-variant":"#444654","outline":"#747685","outline-variant":"#c4c5d6","primary-fixed":"#dde1ff","error":"#ba1a1a","error-container":"#ffdad6"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},fontFamily:{headline:["Inter","sans-serif"],body:["Inter","sans-serif"]}}}}
+</script>
+<style>
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+.kinetic-gradient{background:linear-gradient(135deg,#1039b9 0%,#3454d1 100%)}
+.ghost-border{border:2px dashed rgba(196,197,214,0.5)}
+.ghost-border.drag-over{border-color:#3454d1;background:rgba(52,84,209,0.04)}
+.upload-zone input[type=file]{display:none}
+.status-msg{margin-top:12px;padding:10px 16px;border-radius:8px;font-size:13px;display:none}
+.status-msg.success{display:block;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.status-msg.error{display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.status-msg.loading{display:block;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+</style>
 </head>
-<body>
-    <div class="header">
-        <h1>MELKO Packing List Maker</h1>
-        <p>Packing List & BOL Generator</p>
-    </div>
-    <div class="container">
-        <!-- Step 1 -->
-        <div class="card">
-            <div class="steps"><span class="step-badge step-blue">Step 1</span></div>
-            <h2>Generate Packing List / 生成派送方案单</h2>
-            <p class="desc">上传客户的 Excel 源文件 (.xlsx / .xls)，自动生成标准 Packing List</p>
-            <div class="upload-zone" id="zone1" onclick="document.getElementById('file1').click()">
-                <input type="file" id="file1" accept=".xlsx,.xls" onchange="handleStep1(this)">
-                <div class="icon">📄</div>
-                <div class="text">拖拽文件到此处 或 <b>点击选择</b></div>
-                <div class="file-name" id="fname1"></div>
-            </div>
-            <div class="status" id="status1"></div>
-        </div>
+<body class="bg-[#f7f9ff] font-body text-[#091d2e] selection:bg-blue-200">
+<!-- Header -->
+<header class="sticky top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-sm">
+<div class="flex justify-between items-center h-16 px-6 lg:px-12">
+<div class="flex items-center gap-8">
+<img src="/static/logo.png" alt="MELKO" class="h-10"/>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="text-blue-700 font-bold border-b-2 border-blue-600" href="#">Dashboard</a>
+<a class="text-slate-500 hover:text-blue-600 transition-colors" href="#">History</a>
+<a class="text-slate-500 hover:text-blue-600 transition-colors" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 rounded-full hover:bg-blue-50/50 text-slate-900">help</button>
+<button class="material-symbols-outlined p-2 rounded-full hover:bg-blue-50/50 text-slate-900">account_circle</button>
+</div>
+</div>
+</header>
 
-        <!-- Step 2 -->
-        <div class="card">
-            <div class="steps">
-                <span class="step-badge step-blue">Step 2</span>
-                <span style="font-size:13px;color:#888;line-height:28px;">打开 Step 1 生成的 Packing List，检查修改</span>
-            </div>
-        </div>
+<div class="flex">
+<!-- Sidebar -->
+<aside class="h-[calc(100vh-64px)] w-64 fixed left-0 top-16 bg-slate-50 flex-col py-8 gap-4 hidden lg:flex">
+<div class="px-8 mb-4">
+<h2 class="text-lg font-bold text-slate-900">Packing Tool</h2>
+<p class="text-[10px] uppercase font-bold tracking-widest text-slate-400">v2.1 Kinetic</p>
+</div>
+<nav class="flex flex-col gap-2">
+<div id="nav1" class="flex items-center gap-3 bg-white text-blue-700 rounded-l-full py-3 px-4 shadow-sm ml-4 cursor-pointer transition-all">
+<span class="material-symbols-outlined">upload_file</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">1. Generate List</span>
+</div>
+<div id="nav2" class="flex items-center gap-3 text-slate-500 py-3 px-4 ml-4 cursor-pointer hover:text-blue-600 transition-all">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">2. Review Data</span>
+</div>
+<div id="nav3" class="flex items-center gap-3 text-slate-500 py-3 px-4 ml-4 cursor-pointer hover:text-blue-600 transition-all">
+<span class="material-symbols-outlined">description</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">3. Export BOL</span>
+</div>
+</nav>
+</aside>
 
-        <!-- Step 3 -->
-        <div class="card">
-            <div class="steps"><span class="step-badge step-green">Step 3</span></div>
-            <h2>Generate BOL Files / 生成 BOL 文件</h2>
-            <p class="desc">上传检查修改好的 Packing List，自动生成 4 个 BOL 文件 (ZIP 下载)</p>
-            <div class="upload-zone" id="zone2" onclick="document.getElementById('file2').click()">
-                <input type="file" id="file2" accept=".xlsx" onchange="handleStep2(this)">
-                <div class="icon">📦</div>
-                <div class="text">拖拽 Packing List 到此处 或 <b>点击选择</b></div>
-                <div class="file-name" id="fname2"></div>
-            </div>
-            <div class="status" id="status2"></div>
-        </div>
+<!-- Main Content -->
+<main class="lg:ml-64 flex-1 min-h-screen p-6 lg:p-12">
+<div class="max-w-5xl mx-auto space-y-12">
+<!-- Intro -->
+<div class="space-y-2">
+<h1 class="text-4xl lg:text-5xl font-black tracking-tight">Packing List Maker</h1>
+<p class="text-[#444654] max-w-2xl leading-relaxed">上传客户的预报表/派送计划 Excel，自动生成标准 Packing List 和 BOL 文件。</p>
+</div>
 
-        <!-- Instructions -->
-        <div class="card">
-            <h2>使用说明</h2>
-            <ol class="instructions">
-                <li><b>Step 1</b>: 上传客户提供的预报表/派送计划 Excel → 下载生成的 Packing List</li>
-                <li><b>Step 2</b>: 打开下载的 Packing List，人工检查并修改</li>
-                <li><b>Step 3</b>: 上传修改好的 Packing List → 下载 BOL 文件包 (ZIP)，包含:
-                    <ul style="margin-top:4px;padding-left:20px;">
-                        <li>Packing List (A-M 13列)</li>
-                        <li>Hold List (仅 HOLD/RELABEL 行)</li>
-                        <li>TRUCKING.docx (仓库板数汇总)</li>
-                        <li>柜号唛头.docx (柜号 + MELKO)</li>
-                    </ul>
-                </li>
-            </ol>
-        </div>
-    </div>
-    <div class="footer">MELKO Logistics &copy; 2026</div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-12">
+<div class="xl:col-span-2 space-y-16">
 
-    <script>
-        // Drag-drop support
-        ['zone1','zone2'].forEach(id => {
-            const zone = document.getElementById(id);
-            zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-            zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-            zone.addEventListener('drop', e => {
-                e.preventDefault();
-                zone.classList.remove('drag-over');
-                const file = e.dataTransfer.files[0];
-                if (!file) return;
-                const input = zone.querySelector('input');
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                input.files = dt.files;
-                input.dispatchEvent(new Event('change'));
-            });
-        });
+<!-- Step 1 -->
+<section class="relative pl-12">
+<div class="absolute left-4 top-0 bottom-0 w-1 bg-[#dde1ff] rounded-full">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#684000] border-4 border-white"></div>
+</div>
+<div class="space-y-6">
+<header>
+<h2 class="text-2xl font-bold tracking-tight">Step 1: 生成 Packing List</h2>
+<p class="text-[#444654] text-sm">上传客户的 Excel 源文件 (.xlsx / .xls)</p>
+</header>
+<div id="zone1" class="upload-zone group relative bg-[#edf4ff] rounded-xl p-12 ghost-border transition-all hover:border-[#3454d1] cursor-pointer" onclick="document.getElementById('file1').click()">
+<input type="file" id="file1" accept=".xlsx,.xls" onchange="handleStep1(this)"/>
+<div class="flex flex-col items-center text-center space-y-4">
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[#3454d1] text-3xl">upload_file</span>
+</div>
+<div>
+<p class="font-bold">拖拽客户 Excel 文件到此处</p>
+<p class="text-[#444654] text-xs">支持 .XLSX, .XLS 格式</p>
+</div>
+<button class="px-6 py-2 bg-white border border-[#c4c5d6] text-[#1039b9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors" onclick="event.stopPropagation();document.getElementById('file1').click()">
+浏览文件
+</button>
+<p class="text-xs text-[#3454d1] font-medium" id="fname1"></p>
+</div>
+</div>
+<div class="status-msg" id="status1"></div>
+</div>
+</section>
 
-        function setStatus(id, type, msg) {
-            const el = document.getElementById(id);
-            el.className = 'status ' + type;
-            el.textContent = msg;
-        }
+<!-- Step 2 -->
+<section class="relative pl-12">
+<div class="absolute left-4 top-0 bottom-0 w-1 bg-[#dde1ff] rounded-full">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#dde1ff] border-4 border-white"></div>
+</div>
+<div class="space-y-6">
+<header>
+<h2 class="text-2xl font-bold tracking-tight text-slate-400">Step 2: 检查 Packing List</h2>
+</header>
+<div class="bg-white rounded-xl p-6 border border-slate-200/50 flex items-start gap-4">
+<span class="material-symbols-outlined text-[#4e6073]">info</span>
+<div>
+<p class="text-sm font-semibold">打开下载的 Packing List</p>
+<p class="text-sm text-[#444654]">人工检查数据是否正确，修改后保存。然后进入 Step 3 上传修改好的文件。</p>
+</div>
+</div>
+</div>
+</section>
 
-        async function handleStep1(input) {
-            const file = input.files[0];
-            if (!file) return;
-            document.getElementById('fname1').textContent = file.name;
-            setStatus('status1', 'loading', '正在处理...');
+<!-- Step 3 -->
+<section class="relative pl-12">
+<div class="absolute left-4 top-0 h-4 w-1 bg-[#dde1ff] rounded-t-full">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#dde1ff] border-4 border-white"></div>
+</div>
+<div class="space-y-6">
+<header>
+<h2 class="text-2xl font-bold tracking-tight text-slate-400" id="step3title">Step 3: 生成 BOL 文件</h2>
+</header>
+<div id="zone2" class="upload-zone group relative bg-[#edf4ff] rounded-xl p-12 ghost-border transition-all hover:border-[#3454d1] cursor-pointer" onclick="document.getElementById('file2').click()">
+<input type="file" id="file2" accept=".xlsx" onchange="handleStep2(this)"/>
+<div class="flex flex-col items-center text-center space-y-4">
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[#3454d1] text-3xl">inventory_2</span>
+</div>
+<div>
+<p class="font-bold">拖拽修改好的 Packing List 到此处</p>
+<p class="text-[#444654] text-xs">上传后自动生成 BOL 文件包 (ZIP 下载)</p>
+</div>
+<button class="px-6 py-2 bg-white border border-[#c4c5d6] text-[#1039b9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors" onclick="event.stopPropagation();document.getElementById('file2').click()">
+浏览文件
+</button>
+<p class="text-xs text-[#3454d1] font-medium" id="fname2"></p>
+</div>
+</div>
+<div class="status-msg" id="status2"></div>
+</div>
+</section>
 
-            const form = new FormData();
-            form.append('file', file);
+</div>
 
-            try {
-                const resp = await fetch('/api/step1', { method: 'POST', body: form });
-                if (!resp.ok) {
-                    const err = await resp.json();
-                    throw new Error(err.error || 'Unknown error');
-                }
-                const blob = await resp.blob();
-                const cd = resp.headers.get('Content-Disposition') || '';
-                const match = cd.match(/filename="?([^"]+)"?/);
-                const fname = match ? match[1] : 'packing_list.xlsx';
+<!-- Sidebar Instructions -->
+<aside class="space-y-8">
+<div class="bg-[#3454d1] text-white p-8 rounded-xl shadow-xl shadow-blue-500/10">
+<h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">auto_awesome</span>
+自动化功能
+</h3>
+<p class="text-sm leading-relaxed opacity-80 mb-6">系统自动识别客户 Excel 格式，转换重量单位，按派送方式分类着色。</p>
+<div class="space-y-4">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-amber-300">check_circle</span>
+<div class="text-xs"><p class="font-bold">KG → LBS 自动转换</p><p class="opacity-70">×2.2 自动计算 CTN/LBS 和总 LBS</p></div>
+</div>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-amber-300">check_circle</span>
+<div class="text-xs"><p class="font-bold">颜色自动标记</p><p class="opacity-70">FEDEX紫/UPS褐/HOLD红/FF黄</p></div>
+</div>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-amber-300">check_circle</span>
+<div class="text-xs"><p class="font-bold">仓库代码自动合并</p><p class="opacity-70">FBA CODE 连续相同值合并单元格</p></div>
+</div>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-amber-300">check_circle</span>
+<div class="text-xs"><p class="font-bold">支持 .xls + .xlsx</p><p class="opacity-70">兼容多种客户模板格式</p></div>
+</div>
+</div>
+</div>
+<div class="bg-white p-8 rounded-xl border border-slate-200/50 space-y-4">
+<h3 class="text-sm font-bold uppercase tracking-widest text-[#4e6073]">BOL 文件包含</h3>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 shrink-0 mt-0.5">01</span>
+<p class="text-xs text-[#444654]"><strong>Packing List</strong> (A-M 13列精简版)</p>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 shrink-0 mt-0.5">02</span>
+<p class="text-xs text-[#444654]"><strong>Hold List</strong> (仅 HOLD/RELABEL 行)</p>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 shrink-0 mt-0.5">03</span>
+<p class="text-xs text-[#444654]"><strong>TRUCKING.docx</strong> (仓库板数/CBM 汇总)</p>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 shrink-0 mt-0.5">04</span>
+<p class="text-xs text-[#444654]"><strong>柜号唛头.docx</strong> (柜号 + MELKO)</p>
+</li>
+</ul>
+</div>
+</aside>
+</div>
+</div>
+</main>
+</div>
 
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = decodeURIComponent(fname); a.click();
-                URL.revokeObjectURL(url);
+<!-- Footer -->
+<footer class="w-full py-6 mt-auto bg-slate-50 border-t border-slate-200/50">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 gap-4">
+<p class="text-[10px] uppercase font-bold tracking-widest text-slate-400">&copy; 2026 MELKO Logistics</p>
+</div>
+</footer>
 
-                setStatus('status1', 'success', '✅ 已生成: ' + decodeURIComponent(fname) + ' (已自动下载)');
-            } catch (e) {
-                setStatus('status1', 'error', '❌ ' + e.message);
-            }
-            input.value = '';
-        }
+<script>
+// Drag-drop for both zones
+['zone1','zone2'].forEach(id=>{
+const zone=document.getElementById(id);
+zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over')});
+zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+zone.addEventListener('drop',e=>{
+e.preventDefault();zone.classList.remove('drag-over');
+const file=e.dataTransfer.files[0];if(!file)return;
+const input=zone.querySelector('input[type=file]');
+const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;
+input.dispatchEvent(new Event('change'));
+});
+});
 
-        async function handleStep2(input) {
-            const file = input.files[0];
-            if (!file) return;
-            document.getElementById('fname2').textContent = file.name;
-            setStatus('status2', 'loading', '正在生成 BOL 文件...');
+function setStatus(id,type,msg){
+const el=document.getElementById(id);
+el.className='status-msg '+type;el.textContent=msg;
+}
 
-            const form = new FormData();
-            form.append('file', file);
+async function handleStep1(input){
+const file=input.files[0];if(!file)return;
+document.getElementById('fname1').textContent=file.name;
+setStatus('status1','loading','正在处理...');
+const form=new FormData();form.append('file',file);
+try{
+const resp=await fetch('/api/step1',{method:'POST',body:form});
+if(!resp.ok){const err=await resp.json();throw new Error(err.error||'Unknown error')}
+const blob=await resp.blob();
+const cd=resp.headers.get('Content-Disposition')||'';
+const match=cd.match(/filename="?([^"]+)"?/);
+const fname=match?match[1]:'packing_list.xlsx';
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download=decodeURIComponent(fname);a.click();
+URL.revokeObjectURL(url);
+setStatus('status1','success','✅ 已生成: '+decodeURIComponent(fname)+' — 已自动下载，请检查后进入 Step 3');
+}catch(e){setStatus('status1','error','❌ '+e.message)}
+input.value='';
+}
 
-            try {
-                const resp = await fetch('/api/step2', { method: 'POST', body: form });
-                if (!resp.ok) {
-                    const err = await resp.json();
-                    throw new Error(err.error || 'Unknown error');
-                }
-                const blob = await resp.blob();
-                const cd = resp.headers.get('Content-Disposition') || '';
-                const match = cd.match(/filename="?([^"]+)"?/);
-                const fname = match ? match[1] : 'BOL.zip';
-
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = decodeURIComponent(fname); a.click();
-                URL.revokeObjectURL(url);
-
-                setStatus('status2', 'success', '✅ 已生成 BOL 文件包: ' + decodeURIComponent(fname) + ' (已自动下载)');
-            } catch (e) {
-                setStatus('status2', 'error', '❌ ' + e.message);
-            }
-            input.value = '';
-        }
-    </script>
-</body>
-</html>
+async function handleStep2(input){
+const file=input.files[0];if(!file)return;
+document.getElementById('fname2').textContent=file.name;
+setStatus('status2','loading','正在生成 BOL 文件包...');
+const form=new FormData();form.append('file',file);
+try{
+const resp=await fetch('/api/step2',{method:'POST',body:form});
+if(!resp.ok){const err=await resp.json();throw new Error(err.error||'Unknown error')}
+const blob=await resp.blob();
+const cd=resp.headers.get('Content-Disposition')||'';
+const match=cd.match(/filename="?([^"]+)"?/);
+const fname=match?match[1]:'BOL.zip';
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download=decodeURIComponent(fname);a.click();
+URL.revokeObjectURL(url);
+setStatus('status2','success','✅ BOL 文件包已下载: '+decodeURIComponent(fname));
+}catch(e){setStatus('status2','error','❌ '+e.message)}
+input.value='';
+}
+</script>
+</body></html>
 """
 
 
