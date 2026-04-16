@@ -33,7 +33,7 @@ body>*{position:relative;z-index:1}
 .header-text p{font-size:14px;color:#86868b;margin-top:2px}
 .page-hero{max-width:1100px;margin:0 auto;padding:52px 24px 16px;text-align:center}
 .page-hero h2{font-size:40px;font-weight:600;color:#1d1d1f;letter-spacing:-0.5px}
-.page-hero p{font-size:17px;color:#86868b;margin-top:8px}
+.page-hero p{font-size:17px;color:#1d1d1f;margin-top:8px}
 .steps-row{max-width:1100px;margin:32px auto 0;padding:0 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
 @media(max-width:900px){.steps-row{grid-template-columns:1fr}}
 .step-card{background:#fbfbfd;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s}
