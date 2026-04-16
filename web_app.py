@@ -26,8 +26,8 @@ HTML = r"""
 body{font-family:'Noto Sans SC',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:#f5f5f7;color:#1d1d1f;min-height:100vh;-webkit-font-smoothing:antialiased;background-image:url('/static/bg.jpg');background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat}
 body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.50);z-index:0;pointer-events:none}
 body>*{position:relative;z-index:1}
-.header{background:#fbfbfd;border-bottom:1px solid #d2d2d7;padding:14px 0}
-.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:16px}
+.header{background:#fff;border-bottom:1px solid #d2d2d7;padding:14px 0}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:center;gap:16px}
 .header img{height:60px}
 .header-text h1{font-size:24px;font-weight:600;color:#1d1d1f}
 .header-text p{font-size:14px;color:#86868b;margin-top:2px}
