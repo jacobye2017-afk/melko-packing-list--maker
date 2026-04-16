@@ -20,141 +20,157 @@ HTML = r"""
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MELKO Packing List Maker</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',system-ui,sans-serif;background:#f7f9ff;color:#091d2e;min-height:100vh}
-.header{background:linear-gradient(135deg,#1039b9,#3454d1);padding:24px 0;text-align:center;box-shadow:0 4px 20px rgba(16,57,185,0.15)}
-.header-inner{max-width:900px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:center;gap:16px}
-.header img{height:56px}
-.header h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px}
-.header p{font-size:12px;color:rgba(255,255,255,0.7)}
-.container{max-width:900px;margin:32px auto;padding:0 20px;display:grid;grid-template-columns:1fr 300px;gap:24px}
-@media(max-width:768px){.container{grid-template-columns:1fr}}
-.main{display:flex;flex-direction:column;gap:20px}
-.card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,0.04);border:1px solid rgba(196,197,214,0.2)}
-.card h2{font-size:18px;font-weight:700;margin-bottom:4px;color:#091d2e}
-.card .step-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:10px}
-.step-blue{background:#dde1ff;color:#1039b9}
-.step-check{background:#dcfce7;color:#166534}
-.step-green{background:#d1fae5;color:#065f46}
-.card .desc{font-size:13px;color:#444654;margin-bottom:16px}
-.upload-zone{border:2px dashed #c4c5d6;border-radius:14px;padding:40px 20px;text-align:center;cursor:pointer;transition:all 0.25s;background:#f7f9ff}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f4ff;color:#091d2e;min-height:100vh}
+/* Header */
+.header{background:linear-gradient(135deg,#1039b9,#3454d1);padding:28px 0;text-align:center}
+.header-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:center;gap:20px}
+.header img{height:64px}
+.header-text h1{font-size:28px;font-weight:900;color:#fff;letter-spacing:-0.5px}
+.header-text p{font-size:14px;color:rgba(255,255,255,0.7);margin-top:2px}
+/* Title */
+.page-title{text-align:center;padding:36px 20px 8px;font-size:32px;font-weight:900;color:#1039b9}
+.page-sub{text-align:center;font-size:16px;color:#444654;margin-bottom:32px}
+/* Steps Row */
+.steps-row{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+@media(max-width:900px){.steps-row{grid-template-columns:1fr}}
+/* Step Card */
+.step-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.06);display:flex;flex-direction:column}
+.step-header{padding:16px 24px;font-size:17px;font-weight:800;color:#fff;text-align:center}
+.step-header.blue{background:#3b82f6}
+.step-header.orange{background:#f59e0b}
+.step-header.green{background:#10b981}
+.step-body{padding:28px 24px;flex:1;display:flex;flex-direction:column;align-items:center;text-align:center}
+.step-body .icon{font-size:52px;margin-bottom:12px}
+.step-body .desc{font-size:15px;color:#444654;line-height:1.6;margin-bottom:16px}
+/* Upload zone */
+.upload-zone{width:100%;border:2.5px dashed #cbd5e1;border-radius:16px;padding:28px 16px;cursor:pointer;transition:all 0.25s;background:#f8faff}
 .upload-zone:hover,.upload-zone.drag-over{border-color:#3454d1;background:#eef1ff;box-shadow:0 0 0 4px rgba(52,84,209,0.08)}
 .upload-zone input{display:none}
-.upload-zone .icon{font-size:44px;margin-bottom:8px}
-.upload-zone .text{font-size:14px;color:#444654;font-weight:500}
-.upload-zone .text b{color:#3454d1}
-.upload-zone .sub{font-size:11px;color:#747685;margin-top:4px}
-.upload-zone .browse{display:inline-block;margin-top:14px;padding:8px 22px;background:#fff;border:1.5px solid #c4c5d6;border-radius:10px;font-size:13px;font-weight:600;color:#1039b9;cursor:pointer;transition:all 0.2s}
-.upload-zone .browse:hover{background:#eef1ff;border-color:#3454d1}
-.fname{font-size:12px;color:#3454d1;margin-top:8px;font-weight:500;word-break:break-all}
-.review-box{display:flex;gap:12px;align-items:flex-start;padding:20px;background:#f7f9ff;border-radius:12px;border:1px solid #dde1ff}
-.review-box .r-icon{font-size:28px;flex-shrink:0}
-.review-box .r-title{font-size:14px;font-weight:600}
-.review-box .r-desc{font-size:12px;color:#444654;margin-top:2px}
-.status{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:13px;display:none}
+.upload-zone .uz-icon{font-size:40px;margin-bottom:6px}
+.upload-zone .uz-text{font-size:14px;font-weight:600;color:#334155}
+.upload-zone .uz-sub{font-size:12px;color:#94a3b8;margin-top:2px}
+.upload-zone .browse{display:inline-block;margin-top:12px;padding:8px 24px;background:#3454d1;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.2s}
+.upload-zone .browse:hover{background:#1039b9}
+.fname{font-size:12px;color:#3454d1;margin-top:6px;font-weight:600;word-break:break-all}
+.status{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:500;display:none;text-align:left;width:100%}
 .status.success{display:block;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
 .status.error{display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
 .status.loading{display:block;background:#eef1ff;color:#1039b9;border:1px solid #bfdbfe}
-.sidebar{display:flex;flex-direction:column;gap:20px}
-.feat-card{background:linear-gradient(135deg,#1039b9,#3454d1);color:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 24px rgba(16,57,185,0.15)}
-.feat-card h3{font-size:16px;font-weight:700;margin-bottom:12px}
-.feat-card .feat-item{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
-.feat-card .feat-item .dot{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px}
-.feat-card .feat-item .ft{font-size:12px;font-weight:600}
-.feat-card .feat-item .fd{font-size:11px;opacity:0.7}
-.bol-card{background:#fff;border-radius:16px;padding:24px;border:1px solid rgba(196,197,214,0.2)}
-.bol-card h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#4e6073;margin-bottom:14px}
-.bol-card li{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
-.bol-card .num{width:22px;height:22px;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#64748b;flex-shrink:0}
-.bol-card .bt{font-size:12px;color:#444654}
-.bol-card .bt strong{color:#091d2e}
-.footer{text-align:center;padding:24px;font-size:11px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+/* Review card middle */
+.review-content{display:flex;flex-direction:column;align-items:center;gap:16px;flex:1;justify-content:center}
+.review-content .r-icon{font-size:48px}
+.review-content .r-text{font-size:15px;color:#444654;line-height:1.6}
+.review-content .r-text strong{color:#091d2e}
+/* Features bar */
+.features-bar{max-width:1200px;margin:32px auto;padding:0 20px}
+.features-inner{background:linear-gradient(135deg,#1e3a8a,#3454d1);border-radius:20px;padding:28px 36px;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:center}
+.features-inner h3{width:100%;text-align:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
+.feat-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:10px 18px;border-radius:12px}
+.feat-item .fi{font-size:24px}
+.feat-item .ft{font-size:14px;font-weight:700;color:#fff}
+/* BOL info */
+.bol-bar{max-width:1200px;margin:0 auto 32px;padding:0 20px}
+.bol-inner{background:#fff;border-radius:20px;padding:24px 36px;box-shadow:0 2px 12px rgba(0,0,0,0.04);display:flex;flex-wrap:wrap;gap:20px;justify-content:center;align-items:center}
+.bol-inner h3{width:100%;text-align:center;font-size:16px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:2px}
+.bol-item{font-size:14px;color:#334155;font-weight:500;background:#f1f5f9;padding:8px 16px;border-radius:10px}
+.bol-item strong{color:#1039b9}
+.footer{text-align:center;padding:24px;font-size:12px;color:#94a3b8;font-weight:600}
 </style>
 </head>
 <body>
+<!-- Header -->
 <header class="header">
 <div class="header-inner">
 <img src="/static/logo.png" alt="MELKO">
-<div>
+<div class="header-text">
 <h1>Packing List Maker</h1>
 <p>Packing List & BOL Generator</p>
 </div>
 </div>
 </header>
 
-<div class="container">
-<div class="main">
+<h2 class="page-title">极速 3 步自动化流程</h2>
+<p class="page-sub">上传客户 Excel，自动生成标准装箱单和 BOL 文件</p>
+
+<!-- 3 Steps Horizontal -->
+<div class="steps-row">
 <!-- Step 1 -->
-<div class="card">
-<span class="step-badge step-blue">Step 1</span>
-<h2>生成 Packing List</h2>
-<p class="desc">上传客户的 Excel 源文件 (.xlsx / .xls)，自动生成标准派送方案单</p>
+<div class="step-card">
+<div class="step-header blue">Step 1：上传源文件生成方案</div>
+<div class="step-body">
+<div class="icon">📄</div>
+<div class="desc">拖拽客户 Excel 文件，系统自动完成 KG/LBS 转换、颜色标记及仓库代码合并。</div>
 <div class="upload-zone" id="zone1" onclick="document.getElementById('file1').click()">
 <input type="file" id="file1" accept=".xlsx,.xls" onchange="handleStep1(this)">
-<div class="icon">📄</div>
-<div class="text">拖拽客户 Excel 文件到此处 或 <b>点击选择</b></div>
-<div class="sub">支持 .XLSX / .XLS 格式</div>
-<div class="browse" onclick="event.stopPropagation();document.getElementById('file1').click()">浏览文件</div>
+<div class="uz-icon">☁️</div>
+<div class="uz-text">拖拽文件到此处</div>
+<div class="uz-sub">支持 .XLSX / .XLS</div>
+<button class="browse" onclick="event.stopPropagation();document.getElementById('file1').click()">浏览文件</button>
 <div class="fname" id="fname1"></div>
 </div>
 <div class="status" id="status1"></div>
 </div>
+</div>
 
 <!-- Step 2 -->
-<div class="card">
-<span class="step-badge step-check">Step 2</span>
-<h2>检查 Packing List</h2>
-<div class="review-box">
-<div class="r-icon">📋</div>
-<div>
-<p class="r-title">打开下载的 Packing List</p>
-<p class="r-desc">人工检查数据是否正确（颜色、分组、件数等），修改后保存。然后进入 Step 3。</p>
+<div class="step-card">
+<div class="step-header orange">Step 2：人工检查并保存</div>
+<div class="step-body">
+<div class="review-content">
+<div class="r-icon">🔍</div>
+<div class="r-text">打开生成的列表，<strong>核对颜色、分组及件数</strong>等关键数据，修改后本地保存。</div>
+<div style="font-size:48px;margin-top:8px">💾</div>
+<div style="font-size:13px;color:#94a3b8;font-weight:500">检查完毕后进入 Step 3</div>
 </div>
 </div>
 </div>
 
 <!-- Step 3 -->
-<div class="card">
-<span class="step-badge step-green">Step 3</span>
-<h2>生成 BOL 文件</h2>
-<p class="desc">上传检查修改好的 Packing List，自动生成 BOL 文件包 (ZIP 下载)</p>
+<div class="step-card">
+<div class="step-header green">Step 3：上传获取 BOL 文件包</div>
+<div class="step-body">
+<div class="icon">📦</div>
+<div class="desc">上传核对后的文件，系统自动生成包含装箱单、Hold单、汇总表及唛头的 ZIP 包。</div>
 <div class="upload-zone" id="zone2" onclick="document.getElementById('file2').click()">
 <input type="file" id="file2" accept=".xlsx" onchange="handleStep2(this)">
-<div class="icon">📦</div>
-<div class="text">拖拽修改好的 Packing List 到此处 或 <b>点击选择</b></div>
-<div class="sub">上传后自动生成 BOL 文件包</div>
-<div class="browse" onclick="event.stopPropagation();document.getElementById('file2').click()">浏览文件</div>
+<div class="uz-icon">☁️</div>
+<div class="uz-text">拖拽 Packing List 到此处</div>
+<div class="uz-sub">自动生成 BOL 文件包</div>
+<button class="browse" onclick="event.stopPropagation();document.getElementById('file2').click()">浏览文件</button>
 <div class="fname" id="fname2"></div>
 </div>
 <div class="status" id="status2"></div>
 </div>
 </div>
-
-<!-- Sidebar -->
-<div class="sidebar">
-<div class="feat-card">
-<h3>✨ 自动化功能</h3>
-<div class="feat-item"><div class="dot">✓</div><div><div class="ft">KG → LBS 自动转换</div><div class="fd">×2.2 自动计算 CTN/LBS 和总 LBS</div></div></div>
-<div class="feat-item"><div class="dot">✓</div><div><div class="ft">颜色自动标记</div><div class="fd">FEDEX紫 / UPS褐 / HOLD红 / FF黄</div></div></div>
-<div class="feat-item"><div class="dot">✓</div><div><div class="ft">仓库代码自动合并</div><div class="fd">FBA CODE 连续相同值合并单元格</div></div></div>
-<div class="feat-item"><div class="dot">✓</div><div><div class="ft">支持 .xls + .xlsx</div><div class="fd">兼容多种客户模板格式</div></div></div>
-<div class="feat-item"><div class="dot">✓</div><div><div class="ft">柜号自动识别</div><div class="fd">从文件名/表头自动提取柜号</div></div></div>
 </div>
-<div class="bol-card">
+
+<!-- Features Bar -->
+<div class="features-bar">
+<div class="features-inner">
+<h3>自动化功能集成，告别手动纠错</h3>
+<div class="feat-item"><span class="fi">🚛</span><span class="ft">柜号自动识别</span></div>
+<div class="feat-item"><span class="fi">🏷️</span><span class="ft">FBA 代码连续值合并</span></div>
+<div class="feat-item"><span class="fi">🎨</span><span class="ft">物流专用颜色标记</span></div>
+<div class="feat-item"><span class="fi">⚖️</span><span class="ft">KG → LBS 自动换算</span></div>
+<div class="feat-item"><span class="fi">📋</span><span class="ft">支持 .xls + .xlsx</span></div>
+</div>
+</div>
+
+<!-- BOL Contents -->
+<div class="bol-bar">
+<div class="bol-inner">
 <h3>BOL 文件包含</h3>
-<ul style="list-style:none">
-<li><span class="num">01</span><span class="bt"><strong>Packing List</strong> (A-M 13列精简版)</span></li>
-<li><span class="num">02</span><span class="bt"><strong>Hold List</strong> (仅 HOLD/RELABEL 行)</span></li>
-<li><span class="num">03</span><span class="bt"><strong>TRUCKING.docx</strong> (仓库板数/CBM 汇总)</span></li>
-<li><span class="num">04</span><span class="bt"><strong>柜号唛头.docx</strong> (柜号 + MELKO)</span></li>
-</ul>
-</div>
+<div class="bol-item"><strong>01</strong> Packing List (A-M 13列)</div>
+<div class="bol-item"><strong>02</strong> Hold List (HOLD/RELABEL)</div>
+<div class="bol-item"><strong>03</strong> TRUCKING.docx (板数/CBM)</div>
+<div class="bol-item"><strong>04</strong> 柜号唛头.docx (柜号+MELKO)</div>
 </div>
 </div>
 
-<div class="footer">© 2026 MELKO Logistics</div>
+<div class="footer">&copy; 2026 MELKO Logistics</div>
 
 <script>
 ['zone1','zone2'].forEach(id=>{
@@ -181,7 +197,7 @@ const b=await r.blob(),cd=r.headers.get('Content-Disposition')||'',
 mt=cd.match(/filename="?([^"]+)"?/),fn=mt?mt[1]:'packing_list.xlsx';
 const u=URL.createObjectURL(b),a=document.createElement('a');
 a.href=u;a.download=decodeURIComponent(fn);a.click();URL.revokeObjectURL(u);
-setStatus('status1','success','✅ 已生成: '+decodeURIComponent(fn)+' — 请检查后进入 Step 3');
+setStatus('status1','success','✅ 已生成 '+decodeURIComponent(fn)+' — 请检查后进入 Step 3');
 }catch(e){setStatus('status1','error','❌ '+e.message)}
 inp.value='';
 }
