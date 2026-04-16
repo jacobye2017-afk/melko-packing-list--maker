@@ -750,9 +750,9 @@ def build_mode1(src_path: str, out_path: str, container_no: str = None):
 BOL_HEADERS = HEADERS[:13]  # NO .. REFERENCE ID
 BOL_N_COLS = 13
 BOL_COL_WIDTHS = {
-    "A": 6.0,  "B": 20.0, "C": 16.5, "D": 10.66,
-    "E": 10.0, "F": 12.0, "G": 12.0, "H": 12.0,
-    "I": 22.0, "J": 17.5, "K": 28.0, "L": 17.33, "M": 23.0,
+    "A": 6.0,   "B": 32.33, "C": 16.5,  "D": 10.66,
+    "E": 11.33, "F": 12.5,  "G": 12.0,  "H": 15.5,
+    "I": 20.83, "J": 17.5,  "K": 15.66, "L": 28.5, "M": 28.83,
 }
 BOL_KEY_ORDER = [
     "no", "ship_id", "method", "ctns", "cbm", "kg",
@@ -839,7 +839,7 @@ def _write_bol_excel(transformed, container_no, title_text, out_path):
             cc.border = thin
             if fill:
                 cc.fill = fill
-        ws.row_dimensions[row].height = 49 if long else 41
+        ws.row_dimensions[row].height = 49 if long else 40
 
     # Number formats
     for i in range(len(transformed)):
