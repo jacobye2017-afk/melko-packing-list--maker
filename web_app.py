@@ -177,7 +177,10 @@ body>*{position:relative;z-index:1}
 </div>
 </div>
 
-<div class="footer">&copy; 2026 MELKO Logistics</div>
+<div class="footer">
+  &copy; 2026 MELKO Logistics
+  <br><span style="opacity:0.7;font-weight:400;letter-spacing:0.5px;">Designed & Built by Jacob Ye</span>
+</div>
 
 <script>
 ['zone1','zone2'].forEach(id=>{
