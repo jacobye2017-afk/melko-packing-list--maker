@@ -326,34 +326,49 @@ def step2():
         if eta_val:
             metadata["eta"] = converter._norm_str(eta_val)
 
+        # Build merged-cell value lookup: for any cell in a merged range,
+        # map it to the top-left cell's value (so merged FBA CODE values
+        # propagate to every row in the merged range)
+        merged_value_map = {}
+        for mrange in ws.merged_cells.ranges:
+            top_left_val = ws.cell(row=mrange.min_row, column=mrange.min_col).value
+            for r in range(mrange.min_row, mrange.max_row + 1):
+                for c in range(mrange.min_col, mrange.max_col + 1):
+                    merged_value_map[(r, c)] = top_left_val
+
+        def get_cell(row, col):
+            if (row, col) in merged_value_map:
+                return merged_value_map[(row, col)]
+            return ws.cell(row=row, column=col).value
+
         # Read data
         transformed = []
         for row in range(4, ws.max_row + 1):
-            method = converter._norm_str(ws.cell(row=row, column=3).value)
+            method = converter._norm_str(get_cell(row, 3))
             if method == "TOTAL" or not method:
                 continue
-            ship_id = converter._norm_str(ws.cell(row=row, column=2).value)
+            ship_id = converter._norm_str(get_cell(row, 2))
             if not ship_id:
                 continue
             r = {
-                "no": converter._norm_str(ws.cell(row=row, column=1).value),
+                "no": converter._norm_str(get_cell(row, 1)),
                 "ship_id": ship_id,
                 "method": method,
-                "ctns": converter._to_num(ws.cell(row=row, column=4).value),
-                "cbm": converter._to_num(ws.cell(row=row, column=5).value),
-                "kg": converter._to_num(ws.cell(row=row, column=6).value),
-                "ctn_lbs": converter._to_num(ws.cell(row=row, column=7).value),
-                "total_lbs": converter._to_num(ws.cell(row=row, column=8).value),
-                "description": converter._norm_str(ws.cell(row=row, column=9).value),
-                "fba_code": converter._norm_str(ws.cell(row=row, column=10).value),
-                "address": converter._norm_str(ws.cell(row=row, column=11).value),
-                "fba_id": converter._norm_str(ws.cell(row=row, column=12).value),
-                "reference_id": converter._norm_str(ws.cell(row=row, column=13).value),
-                "loading_order": converter._norm_str(ws.cell(row=row, column=14).value),
-                "eta_date": converter._norm_str(ws.cell(row=row, column=15).value),
-                "trucking_no": converter._norm_str(ws.cell(row=row, column=16).value),
-                "rate": converter._norm_str(ws.cell(row=row, column=17).value),
-                "remark": converter._norm_str(ws.cell(row=row, column=18).value),
+                "ctns": converter._to_num(get_cell(row, 4)),
+                "cbm": converter._to_num(get_cell(row, 5)),
+                "kg": converter._to_num(get_cell(row, 6)),
+                "ctn_lbs": converter._to_num(get_cell(row, 7)),
+                "total_lbs": converter._to_num(get_cell(row, 8)),
+                "description": converter._norm_str(get_cell(row, 9)),
+                "fba_code": converter._norm_str(get_cell(row, 10)),
+                "address": converter._norm_str(get_cell(row, 11)),
+                "fba_id": converter._norm_str(get_cell(row, 12)),
+                "reference_id": converter._norm_str(get_cell(row, 13)),
+                "loading_order": converter._norm_str(get_cell(row, 14)),
+                "eta_date": converter._norm_str(get_cell(row, 15)),
+                "trucking_no": converter._norm_str(get_cell(row, 16)),
+                "rate": converter._norm_str(get_cell(row, 17)),
+                "remark": converter._norm_str(get_cell(row, 18)),
             }
             if r["ctns"] == int(r["ctns"]):
                 r["ctns"] = int(r["ctns"])
