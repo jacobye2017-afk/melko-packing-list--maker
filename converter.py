@@ -245,11 +245,12 @@ def _extract_container(filename, fallback_text=""):
 def _load_sheet_as_grid(src_path):
     """Return a 2D list of values regardless of .xls or .xlsx format.
     Also returns the sheet/workbook name-of-first-sheet.
+    Propagates merged cell values to every cell in the merged range
+    so downstream code doesn't need to handle merges separately.
     """
     ext = os.path.splitext(src_path)[1].lower()
     if ext == ".xlsx":
         wb = openpyxl.load_workbook(src_path, data_only=True)
-        # Prefer 导入数据 / 派送表 sheets if present, else first non-hidden
         preferred = ["导入数据", "派送表", "总表", "packing list"]
         ws = None
         for name in preferred:
@@ -261,11 +262,20 @@ def _load_sheet_as_grid(src_path):
         grid = []
         for row in ws.iter_rows(values_only=True):
             grid.append(list(row))
+
+        # Propagate merged cell values (openpyxl leaves non-top-left cells as None)
+        for mrange in ws.merged_cells.ranges:
+            top_val = ws.cell(row=mrange.min_row, column=mrange.min_col).value
+            for r in range(mrange.min_row - 1, mrange.max_row):
+                for c in range(mrange.min_col - 1, mrange.max_col):
+                    if r < len(grid) and c < len(grid[r]):
+                        grid[r][c] = top_val
         return grid, ws.title
+
     elif ext == ".xls":
         if not _HAS_XLRD:
             raise RuntimeError("Reading .xls requires the 'xlrd' package. Run: pip install xlrd")
-        wb = xlrd.open_workbook(src_path)
+        wb = xlrd.open_workbook(src_path, formatting_info=True)
         preferred = ["导入数据", "派送表", "总表"]
         ws = None
         for name in preferred:
@@ -289,11 +299,23 @@ def _load_sheet_as_grid(src_path):
                     except Exception:
                         row.append(v)
                 elif ct == xlrd.XL_CELL_NUMBER:
-                    # Keep integers as ints when possible
                     row.append(int(v) if v == int(v) else v)
                 else:
                     row.append(v if v != "" else None)
             grid.append(row)
+
+        # Propagate merged cell values (xlrd returns '' for non-top-left)
+        for rlo, rhi, clo, chi in ws.merged_cells:
+            top_val = ws.cell_value(rlo, clo)
+            ct = ws.cell_type(rlo, clo)
+            if ct == xlrd.XL_CELL_NUMBER:
+                top_val = int(top_val) if top_val == int(top_val) else top_val
+            elif ct == xlrd.XL_CELL_EMPTY or top_val == "":
+                top_val = None
+            for r in range(rlo, rhi):
+                for c in range(clo, chi):
+                    if r < len(grid) and c < len(grid[r]):
+                        grid[r][c] = top_val
         return grid, ws.name
     else:
         raise RuntimeError(f"Unsupported file extension: {ext}")
