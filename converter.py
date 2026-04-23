@@ -35,7 +35,27 @@ import re
 import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.page import PageMargins
 from openpyxl.worksheet.worksheet import Worksheet
+
+
+def _apply_print_setup(ws, fit_width: int = 1):
+    """
+    统一打印页面设置:横向 US Letter,N 页宽,高度不限。
+    Will 的 melko-fba-files-print skill 直接用此设置转 PDF 打印,不需要人工再调。
+
+    fit_width: 强制压到 N 页宽(默认 1)。19 列全表用 2 比较合适.
+    """
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER  # 8.5 × 11 in
+    ws.page_setup.fitToWidth = fit_width
+    ws.page_setup.fitToHeight = 0  # 0 = 不限高度,字保持可读
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_margins = PageMargins(
+        left=0.25, right=0.25, top=0.5, bottom=0.5, header=0.3, footer=0.3
+    )
+    ws.print_title_rows = "1:4"  # 每页重复标题 4 行(柜号/Container/日期/表头)
+    # print_area 不写死 —— Will 那边会按 TOTAL 行自动探测并覆盖
 
 try:
     import xlrd  # for .xls
@@ -769,6 +789,7 @@ def build_mode1(src_path: str, out_path: str, container_no: str = None):
 
     ws.freeze_panes = "A4"
 
+    _apply_print_setup(ws, fit_width=2)  # 19 列全表,2 页宽
     wb.save(out_path)
     return transformed, container_no, metadata
 
@@ -901,6 +922,8 @@ def _write_bol_excel(transformed, container_no, title_text, out_path):
     ws.row_dimensions[total_row].height = 41
 
     ws.freeze_panes = "A5"
+
+    _apply_print_setup(ws, fit_width=1)  # 13 列 BOL,1 页宽 —— Will 打印就靠这份
     wb.save(out_path)
 
 
@@ -1030,6 +1053,8 @@ def _write_hold_list_excel(transformed, container_no, out_path):
     ws.row_dimensions[total_row].height = 40
 
     ws.freeze_panes = "A5"
+
+    _apply_print_setup(ws, fit_width=1)  # 14 列 hold list,1 页宽
     wb.save(out_path)
 
 
@@ -1191,6 +1216,7 @@ def build_all(src_path: str, out_folder: str = None):
     last_data = _write_data_rows(ws, transformed, sorted_rows, extras_headers)
     _write_total_row(ws, last_data, transformed, len(extras_headers))
     ws.freeze_panes = "A4"
+    _apply_print_setup(ws, fit_width=2)  # 19 列全表,2 页宽
     wb.save(full_path)
 
     # 2. BOL packing list (A-M only)
